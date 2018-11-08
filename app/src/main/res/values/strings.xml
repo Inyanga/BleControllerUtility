@@ -1,0 +1,9 @@
+<resources>
+    <string name="app_name">BleControllerUtility</string>
+    <string name="action_settings">Settings</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="ble_not_supported">BLE не поддерживается устройством</string>
+    <string name="bt_not_supported">Bluetooth не поддерживается устройством</string>
+</resources>
