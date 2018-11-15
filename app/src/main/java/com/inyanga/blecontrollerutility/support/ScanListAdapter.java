@@ -3,6 +3,7 @@ package com.inyanga.blecontrollerutility.support;
 import android.bluetooth.le.ScanResult;
 import android.content.Context;
 import android.support.annotation.NonNull;
+import android.support.constraint.ConstraintLayout;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -20,10 +21,12 @@ public class ScanListAdapter extends RecyclerView.Adapter<ScanListAdapter.ScanVi
 
     private Context context;
     private List<ScanResult> scanResults;
+    private OnItemClickListener itemClickListener;
 
-    public ScanListAdapter(Context context, List<ScanResult> scanResults) {
+    public ScanListAdapter(Context context, List<ScanResult> scanResults, OnItemClickListener itemClickListener) {
         this.context = context;
         this.scanResults = scanResults;
+        this.itemClickListener = itemClickListener;
     }
 
     @NonNull
@@ -35,11 +38,17 @@ public class ScanListAdapter extends RecyclerView.Adapter<ScanListAdapter.ScanVi
 
 
     @Override
-    public void onBindViewHolder(@NonNull ScanViewHolder scanViewHolder, int i) {
+    public void onBindViewHolder(@NonNull final ScanViewHolder scanViewHolder, int i) {
         ScanResult result = scanResults.get(i);
         scanViewHolder.deviceName.setText(result.getDevice().getName());
         scanViewHolder.deviceMac.setText(result.getDevice().getAddress());
         scanViewHolder.deviceRssi.setText(String.valueOf(result.getRssi()));
+        scanViewHolder.holder.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                itemClickListener.onItemClick(scanViewHolder.getAdapterPosition());
+            }
+        });
     }
 
     @Override
@@ -54,6 +63,8 @@ public class ScanListAdapter extends RecyclerView.Adapter<ScanListAdapter.ScanVi
         TextView deviceMac;
         @Bind(R.id.device_rssi)
         TextView deviceRssi;
+        @Bind(R.id.holder)
+        ConstraintLayout holder;
 
         ScanViewHolder(@NonNull View itemView) {
             super(itemView);

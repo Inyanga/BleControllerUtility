@@ -9,7 +9,9 @@
     <android.support.v7.widget.RecyclerView
         android:id="@+id/device_recycler"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
+        android:layout_height="wrap_content"
+
+        app:layout_constraintTop_toTopOf="parent" />
 
     <android.support.design.widget.FloatingActionButton
         android:id="@+id/scan_btn"
@@ -19,6 +21,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         android:layout_marginBottom="16dp"
+
         app:backgroundTint="@android:color/holo_blue_bright"
         />
 

@@ -9,6 +9,7 @@ import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.BinderThread;
 import android.support.annotation.NonNull;
+import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
@@ -21,7 +22,9 @@ import com.inyanga.blecontrollerutility.ble.BleScanner;
 import com.inyanga.blecontrollerutility.ble.BleUtility;
 import com.inyanga.blecontrollerutility.ble.callbacks.BleScannerCallback;
 import com.inyanga.blecontrollerutility.ble.callbacks.BleUtilityCallback;
+import com.inyanga.blecontrollerutility.support.OnItemClickListener;
 import com.inyanga.blecontrollerutility.support.ScanListAdapter;
+import com.inyanga.blecontrollerutility.util.CtlConfigurator;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -49,10 +52,13 @@ public class FragmentScanList extends Fragment implements BleScannerCallback {
     private BleUtility bleUtility;
     private List<ScanResult> scanResults;
     private ScanListAdapter adapter;
+    private BleScanner bleScanner;
 
 
     @Bind(R.id.device_recycler)
     RecyclerView deviceRecycler;
+    @Bind(R.id.scan_btn)
+    FloatingActionButton scanBtn;
 
     public FragmentScanList() {
         // Required empty public constructor
@@ -87,7 +93,6 @@ public class FragmentScanList extends Fragment implements BleScannerCallback {
         scanResults = new ArrayList<>();
 
 
-
         final BluetoothManager bluetoothManager = (BluetoothManager) getContext().getSystemService(Context.BLUETOOTH_SERVICE);
         if (bluetoothManager != null) {
             bluetoothAdapter = bluetoothManager.getAdapter();
@@ -108,10 +113,27 @@ public class FragmentScanList extends Fragment implements BleScannerCallback {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_scan_list, container, false);
         ButterKnife.bind(this, view);
-        adapter = new ScanListAdapter(getContext(), scanResults);
+
+        adapter = new ScanListAdapter(getContext(), scanResults, new OnItemClickListener() {
+            @Override
+            public void onItemClick(int i) {
+                bleScanner.stopScan();
+                bleUtility.connect(scanResults.get(i).getDevice());
+            }
+        });
         LinearLayoutManager layoutManager = new LinearLayoutManager(getContext());
         deviceRecycler.setLayoutManager(layoutManager);
         deviceRecycler.setAdapter(adapter);
+
+        scanBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+//                CtlConfigurator configurator = new CtlConfigurator();
+//                configurator.setServerIp("192.168.1.100", 5710);
+                bleScanner.startScan();
+            }
+        });
+
         return view;
     }
 
@@ -123,8 +145,11 @@ public class FragmentScanList extends Fragment implements BleScannerCallback {
 
     @Override
     public void onDeviceFound(ScanResult result) {
-        if(!scanResults.contains(result))
-            scanResults.add(result);
+        for (ScanResult scanResult : scanResults) {
+            if (scanResult.getDevice().getAddress().equals(result.getDevice().getAddress()))
+                return;
+        }
+        scanResults.add(result);
         adapter.notifyDataSetChanged();
     }
 
@@ -142,7 +167,7 @@ public class FragmentScanList extends Fragment implements BleScannerCallback {
     }
 
     public void initScanner() {
-        BleScanner bleScanner = new BleScanner(this, bluetoothAdapter);
+        bleScanner = new BleScanner(this, bluetoothAdapter);
         bleScanner.startScan();
     }
 }
